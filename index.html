@@ -124,16 +124,26 @@
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       text-align: center; padding: 80px 6vw 80px;
       position: relative; overflow: hidden;
-      background: radial-gradient(ellipse 80% 60% at 50% 30%, rgba(0,229,200,0.08) 0%, transparent 70%), var(--bg);
+      background: var(--bg);
     }
-    #hero::before {
-      content: '';
+    /* Video background */
+    #hero-video {
       position: absolute; inset: 0;
-      background:
-        repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(0,229,200,0.04) 40px),
-        repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(0,229,200,0.04) 40px);
+      width: 100%; height: 100%;
+      object-fit: cover;
+      opacity: 0.35;
       pointer-events: none;
     }
+    /* Overlay gradients over video */
+    #hero::before {
+      content: '';
+      position: absolute; inset: 0; z-index: 1;
+      background:
+        linear-gradient(to bottom, rgba(10,15,30,0.5) 0%, rgba(10,15,30,0.2) 40%, rgba(10,15,30,0.7) 100%),
+        radial-gradient(ellipse 80% 60% at 50% 30%, rgba(0,229,200,0.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    #hero > * { position: relative; z-index: 2; }
 
     .hero-logo { margin-bottom: 32px; animation: fadeDown 0.9s ease both; }
 
@@ -213,7 +223,55 @@
     .act-card:hover { border-color: var(--mint); box-shadow: 0 0 24px rgba(0,229,200,0.12); transform: translateY(-4px); }
     .act-icon { font-size: 2.2rem; margin-bottom: 14px; }
     .act-name { font-size: 1.3rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: var(--mint); margin-bottom: 8px; }
-    .act-desc { font-size: 1rem; font-weight: 400; color: var(--muted); line-height: 1.5; }
+    .act-desc { font-size: 1rem; font-weight: 400; color: var(--muted); line-height: 1.5; margin-bottom: 16px; flex: 1; }
+    .act-card { display: flex; flex-direction: column; }
+    .act-cta {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 9px 16px; border-radius: 6px; margin-top: auto;
+      background: transparent; border: 1px solid var(--border);
+      color: var(--mint); font-family: inherit; font-size: 0.82rem;
+      font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+      cursor: pointer; text-decoration: none; align-self: flex-start;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .act-cta:hover { background: var(--mint-dim); border-color: var(--mint); }
+
+    /* ══ TOURIST SECTION ══ */
+    #turistas {
+      background: linear-gradient(135deg, rgba(0,229,200,0.07) 0%, rgba(0,229,200,0.02) 100%);
+      border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    }
+    .turistas-inner {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;
+    }
+    @media (max-width: 768px) { .turistas-inner { grid-template-columns: 1fr; gap: 32px; } }
+    .turistas-tag {
+      display: inline-block; font-size: 0.72rem; font-weight: 800;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: #000; background: var(--mint);
+      padding: 4px 12px; border-radius: 3px; margin-bottom: 16px;
+    }
+    .turistas-title {
+      font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 800;
+      text-transform: uppercase; letter-spacing: 0.03em; line-height: 1.1;
+      margin-bottom: 16px;
+    }
+    .turistas-title em { color: var(--mint); font-style: normal; }
+    .turistas-text { font-size: 1rem; color: var(--muted); line-height: 1.6; margin-bottom: 28px; }
+    .turistas-planes { display: flex; flex-direction: column; gap: 12px; }
+    .turista-plan {
+      background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+      padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      transition: border-color 0.2s;
+    }
+    .turista-plan:hover { border-color: var(--mint); }
+    .turista-plan-name { font-size: 1rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; }
+    .turista-plan-sub { font-size: 0.82rem; color: var(--muted); margin-top: 2px; }
+    .turista-plan-badge {
+      font-size: 0.72rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--mint); background: var(--mint-dim); border: 1px solid var(--border);
+      padding: 4px 10px; border-radius: 4px; white-space: nowrap;
+    }
 
     /* ══ PLANES ══ */
     #planes { background: var(--bg); }
@@ -554,8 +612,12 @@
 
 <!-- HERO -->
 <section id="hero">
+  <!-- Reemplazá el src con tu video cuando lo tengas. Formatos: .mp4 recomendado -->
+  <video id="hero-video" autoplay muted loop playsinline poster="">
+    <!-- <source src="hero-video.mp4" type="video/mp4"> -->
+  </video>
   <div class="hero-logo">
-    <img src="logo.png" alt="Smart Center Gym" style="height:140px;width:140px;object-fit:contain;">
+    <img src="logo.png" alt="Smart Center Gym" style="height:200px;width:200px;object-fit:contain;">
   </div>
   <h1 class="hero-title">ENTRENÁ EN SERIO.<br><em>VIVILO EN GRANDE.</em></h1>
   <p class="hero-sub">Smart Center Gym — Mar del Plata</p>
@@ -597,73 +659,79 @@
       <div class="act-icon">🔥</div>
       <div class="act-name">Funcional</div>
       <p class="act-desc">Entrenamiento de alta intensidad que trabaja todo el cuerpo usando tu propio peso y herramientas funcionales.</p>
+      <a href="https://wa.me/5492235823460?text=Hola!%20Quiero%20info%20sobre%20Funcional%20en%20Smart%20Center%20Gym" target="_blank" class="act-cta">Quiero saber más →</a>
     </div>
     <div class="act-card">
       <div class="act-icon">🧘</div>
       <div class="act-name">Stretching</div>
       <p class="act-desc">Sesiones de elongación y movilidad para mejorar tu flexibilidad, prevenir lesiones y recuperar mejor.</p>
+      <a href="https://wa.me/5492235823460?text=Hola!%20Quiero%20info%20sobre%20Stretching%20en%20Smart%20Center%20Gym" target="_blank" class="act-cta">Quiero saber más →</a>
     </div>
     <div class="act-card">
       <div class="act-icon">💪</div>
       <div class="act-name">Calistenia</div>
       <p class="act-desc">Dominá el movimiento con tu propio cuerpo. Fuerza, control y habilidad sin necesidad de pesas.</p>
+      <a href="https://wa.me/5492235823460?text=Hola!%20Quiero%20info%20sobre%20Calistenia%20en%20Smart%20Center%20Gym" target="_blank" class="act-cta">Quiero saber más →</a>
     </div>
     <div class="act-card">
       <div class="act-icon">🥊</div>
       <div class="act-name">Aerocombat</div>
       <p class="act-desc">Cardio con técnicas de artes marciales. Quemá calorías mientras aprendés defensa y coordinación.</p>
+      <a href="https://wa.me/5492235823460?text=Hola!%20Quiero%20info%20sobre%20Aerocombat%20en%20Smart%20Center%20Gym" target="_blank" class="act-cta">Quiero saber más →</a>
     </div>
     <div class="act-card">
       <div class="act-icon">⚡</div>
       <div class="act-name">Strong</div>
       <p class="act-desc">Entrenamiento de fuerza intenso con kettlebells, barras y circuitos que desafían tus límites.</p>
+      <a href="https://wa.me/5492235823460?text=Hola!%20Quiero%20info%20sobre%20Strong%20en%20Smart%20Center%20Gym" target="_blank" class="act-cta">Quiero saber más →</a>
     </div>
     <div class="act-card">
       <div class="act-icon">🏋️</div>
       <div class="act-name">Musculación</div>
       <p class="act-desc">Sala equipada para hipertrofia y acondicionamiento físico. Entrenás a tu ritmo con asesoramiento profesional.</p>
+      <a href="https://wa.me/5492235823460?text=Hola!%20Quiero%20info%20sobre%20Musculación%20en%20Smart%20Center%20Gym" target="_blank" class="act-cta">Quiero saber más →</a>
     </div>
   </div>
 </section>
 
-<!-- PLANES -->
-<section id="planes">
-  <p class="section-label">Elegí el tuyo</p>
-  <h2 class="section-title">NUESTROS <em>PLANES</em></h2>
-  <div class="section-divider"></div>
-  <p class="planes-note">Precios en <strong>ARS</strong> · Precio lista y efectivo disponibles</p>
-
-  <div class="planes-preview-grid">
-    <div class="plan-preview-card">
-      <div class="pp-icon">🔥</div>
-      <div class="pp-name">Funcional</div>
-      <div class="pp-desde">Desde <span>$46.000</span></div>
-      <div class="pp-sub">1 a 5 veces por semana</div>
+<!-- TURISTAS -->
+<section id="turistas">
+  <div class="turistas-inner">
+    <div>
+      <span class="turistas-tag">Turistas &amp; Visitantes</span>
+      <h2 class="turistas-title">¿DE VACACIONES EN<br><em>MAR DEL PLATA?</em></h2>
+      <p class="turistas-text">No pares de entrenar. Tenemos planes cortos pensados para los que vienen a la ciudad por días o semanas. Sin ataduras, sin contrato.</p>
+      <a href="https://wa.me/5492235823460?text=Hola!%20Estoy%20de%20vacaciones%20en%20Mar%20del%20Plata%20y%20quiero%20entrenar%20en%20Smart%20Center%20Gym" target="_blank" class="btn-hero-solid" style="display:inline-flex;margin-top:0">
+        <svg class="wa-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        CONSULTAR DISPONIBILIDAD
+      </a>
     </div>
-    <div class="plan-preview-card">
-      <div class="pp-icon">🏋️</div>
-      <div class="pp-name">Musculación</div>
-      <div class="pp-desde">Desde <span>$15.000</span></div>
-      <div class="pp-sub">Por día, semana, 15 días o mes</div>
+    <div class="turistas-planes">
+      <div class="turista-plan">
+        <div>
+          <div class="turista-plan-name">Pase por 1 día</div>
+          <div class="turista-plan-sub">Musculación · Acceso total</div>
+        </div>
+        <span class="turista-plan-badge">Desde $15.000</span>
+      </div>
+      <div class="turista-plan">
+        <div>
+          <div class="turista-plan-name">Semana completa</div>
+          <div class="turista-plan-sub">Musculación · 7 días corridos</div>
+        </div>
+        <span class="turista-plan-badge">Desde $37.500</span>
+      </div>
+      <div class="turista-plan">
+        <div>
+          <div class="turista-plan-name">15 días</div>
+          <div class="turista-plan-sub">Musculación · Ideal verano</div>
+        </div>
+        <span class="turista-plan-badge">Desde $39.000</span>
+      </div>
+      <div style="margin-top:8px;text-align:right">
+        <a href="planes.html" style="font-size:0.82rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--mint);text-decoration:none;opacity:0.8">Ver todos los planes →</a>
+      </div>
     </div>
-    <div class="plan-preview-card">
-      <div class="pp-icon">⚡</div>
-      <div class="pp-name">Strong</div>
-      <div class="pp-desde">Desde <span>$52.000</span></div>
-      <div class="pp-sub">2 veces/semana, con o sin muscu</div>
-    </div>
-    <div class="plan-preview-card">
-      <div class="pp-icon">💪</div>
-      <div class="pp-name">Calistenia</div>
-      <div class="pp-desde">Desde <span>$59.000</span></div>
-      <div class="pp-sub">3 veces/semana o con muscu libre</div>
-    </div>
-  </div>
-
-  <div style="text-align:center;margin-top:40px;">
-    <a href="planes.html" class="btn-ver-planes">
-      VER TODOS LOS PLANES Y PRECIOS →
-    </a>
   </div>
 </section>
 
