@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Planes y Precios — Smart Center Gym</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0A0F1E;
+      --card: #0D1829;
+      --mint: #00E5C8;
+      --mint-dim: rgba(0,229,200,0.15);
+      --white: #FFFFFF;
+      --muted: #8899AA;
+      --border: rgba(0,229,200,0.18);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--white);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--mint); border-radius: 3px; }
+
+    /* ══ NAVBAR ══ */
+    #main-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 5vw; height: 60px;
+      background: rgba(10,15,30,0.95);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-brand { display: flex; align-items: center; gap: 10px; }
+    .nav-brand span { font-size: 1.05rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+    .nav-links { display: flex; align-items: center; gap: 24px; }
+    .nav-links a { font-size: 0.82rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); transition: color 0.2s; }
+    .nav-links a:hover, .nav-links a.active { color: var(--mint); }
+    .nav-actions { display: flex; align-items: center; gap: 10px; }
+    @media (max-width: 768px) { .nav-links { display: none; } }
+
+    .btn-wa {
+      display: flex; align-items: center; gap: 6px;
+      padding: 8px 14px; border-radius: 6px;
+      background: transparent; border: 1px solid var(--mint);
+      color: var(--mint); font-family: inherit; font-size: 0.85rem;
+      font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+      cursor: pointer; transition: background 0.2s, color 0.2s;
+    }
+    .btn-wa:hover { background: var(--mint); color: #000; }
+
+    .btn-primary {
+      padding: 8px 20px; border-radius: 6px;
+      background: var(--mint); color: #000;
+      font-family: inherit; font-size: 0.85rem; font-weight: 800;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      cursor: pointer; border: none; transition: opacity 0.2s, transform 0.15s;
+    }
+    .btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+
+    /* ══ HAMBURGER MENU ══ */
+    .nav-hamburger {
+      display: none;
+      background: none; border: none; cursor: pointer;
+      color: var(--mint); font-size: 1.6rem; line-height: 1;
+      padding: 6px;
+    }
+    .mobile-menu-overlay {
+      display: none; position: fixed; inset: 0; z-index: 200;
+      background: rgba(10,15,30,0.98); backdrop-filter: blur(20px);
+      flex-direction: column; align-items: center; justify-content: center;
+      gap: 32px;
+    }
+    .mobile-menu-overlay.open { display: flex; }
+    .mobile-menu-close {
+      position: absolute; top: 20px; right: 20px;
+      background: none; border: none; color: var(--mint);
+      font-size: 2rem; cursor: pointer; line-height: 1;
+    }
+    .mobile-menu-overlay a {
+      font-size: 1.8rem; font-weight: 800; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--white);
+      transition: color 0.2s;
+    }
+    .mobile-menu-overlay a:hover { color: var(--mint); }
+    @media (max-width: 768px) { .nav-hamburger { display: block; } }
+    @media (max-width: 480px) { .nav-wa-text { display: none; } #main-nav { padding: 0 4vw; } }
+
+    .wa-icon { display: inline-block; width: 18px; height: 18px; vertical-align: middle; flex-shrink: 0; }
+
+    /* ══ HERO ══ */
+    #hero {
+      padding: 130px 6vw 80px;
+      text-align: center;
+      background: radial-gradient(ellipse 80% 60% at 50% 30%, rgba(0,229,200,0.07) 0%, transparent 70%), var(--bg);
+      position: relative; overflow: hidden;
+    }
+    #hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(0,229,200,0.03) 40px),
+        repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(0,229,200,0.03) 40px);
+      pointer-events: none;
+    }
+    .hero-label {
+      font-size: 0.8rem; font-weight: 700; letter-spacing: 0.3em;
+      text-transform: uppercase; color: var(--mint); margin-bottom: 10px;
+    }
+    .hero-title {
+      font-size: clamp(2.2rem, 7vw, 4.5rem);
+      font-weight: 800; text-transform: uppercase; letter-spacing: 0.03em; line-height: 1.05;
+    }
+    .hero-title em { color: var(--mint); font-style: normal; }
+    .hero-sub {
+      margin-top: 14px;
+      font-size: clamp(0.95rem, 2vw, 1.2rem); font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted);
+    }
+    .hero-divider { width: 48px; height: 3px; background: var(--mint); margin: 20px auto 0; border-radius: 2px; }
+
+    /* ══ MAIN CONTENT ══ */
+    main { padding: 60px 6vw 80px; max-width: 1200px; margin: 0 auto; }
+    @media (max-width: 480px) { main { padding: 40px 4vw 60px; } }
+
+    /* ══ PRICE NOTE ══ */
+    .planes-note {
+      font-size: 0.9rem; color: var(--muted); letter-spacing: 0.05em;
+      margin-bottom: 48px; padding: 14px 20px;
+      border: 1px solid var(--border); border-radius: 8px;
+      display: inline-block;
+    }
+    .planes-note strong { color: var(--mint); }
+
+    /* ══ CATEGORY ══ */
+    .category-block {
+      margin-bottom: 60px;
+    }
+    .category-header {
+      display: flex; align-items: center; gap: 14px;
+      margin-bottom: 24px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .category-icon { font-size: 1.8rem; }
+    .category-title {
+      font-size: clamp(1.3rem, 3vw, 1.8rem); font-weight: 800;
+      letter-spacing: 0.12em; text-transform: uppercase; color: var(--mint);
+      flex: 1;
+    }
+    .category-toggle {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--mint-dim); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--mint); font-size: 1.1rem; font-weight: 800;
+      transition: background 0.2s, transform 0.3s;
+      flex-shrink: 0;
+    }
+    .category-header.open .category-toggle { transform: rotate(45deg); background: var(--mint); color: #000; }
+    .category-divider { width: 100%; height: 1px; background: var(--border); margin-bottom: 0; }
+
+    .plans-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 16px;
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height 0.5s ease, margin-top 0.3s ease;
+      margin-top: 0;
+    }
+    .plans-grid.open {
+      max-height: 2000px;
+      margin-top: 20px;
+    }
+
+    /* ══ PLAN CARD ══ */
+    .plan-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 24px 20px; display: flex; flex-direction: column; gap: 14px;
+      transition: border-color 0.25s, box-shadow 0.25s, transform 0.2s;
+    }
+    .plan-card:hover { border-color: var(--mint); box-shadow: 0 0 28px rgba(0,229,200,0.18); transform: translateY(-3px); }
+
+    .plan-name {
+      font-size: 1.1rem; font-weight: 800; text-transform: uppercase;
+      letter-spacing: 0.05em; line-height: 1.2;
+    }
+
+    .plan-prices { display: flex; flex-direction: column; gap: 6px; }
+    .plan-price-row { display: flex; justify-content: space-between; align-items: baseline; }
+    .plan-price-label { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+    .plan-price-val { font-size: 1.35rem; font-weight: 800; color: var(--mint); }
+    .plan-price-val.efectivo { color: #fff; }
+    .plan-savings {
+      margin-top: 2px;
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      color: #000; background: var(--mint); display: inline-block;
+      padding: 2px 8px; border-radius: 3px; align-self: flex-start;
+    }
+
+    .plan-cta {
+      margin-top: auto; display: flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 11px 16px; border-radius: 7px;
+      background: var(--mint); color: #000;
+      font-family: inherit; font-size: 0.9rem; font-weight: 800;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      border: none; cursor: pointer; width: 100%;
+      transition: opacity 0.2s, transform 0.15s;
+      text-align: center;
+    }
+    .plan-cta:hover { opacity: 0.85; transform: translateY(-1px); }
+    .plan-cta.outline {
+      background: transparent; border: 1px solid var(--mint); color: var(--mint);
+    }
+    .plan-cta.outline:hover { background: var(--mint); color: #000; }
+
+    /* ══ CTA FINAL ══ */
+    .cta-final {
+      margin-top: 60px; text-align: center;
+      padding: 60px 6vw;
+      background: linear-gradient(135deg, rgba(0,229,200,0.06) 0%, rgba(0,229,200,0.02) 100%);
+      border: 1px solid var(--border); border-radius: 16px;
+    }
+    .cta-final-title {
+      font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 800;
+      text-transform: uppercase; letter-spacing: 0.04em;
+      margin-bottom: 12px;
+    }
+    .cta-final-title em { color: var(--mint); font-style: normal; }
+    .cta-final-sub {
+      font-size: 1.1rem; font-weight: 600; color: var(--muted);
+      letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 32px;
+    }
+    .btn-cta-big {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 16px 40px; border-radius: 8px;
+      background: var(--mint); color: #000;
+      font-family: inherit; font-size: 1.05rem; font-weight: 800;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      border: none; cursor: pointer; transition: opacity 0.2s, transform 0.15s;
+    }
+    .btn-cta-big:hover { opacity: 0.85; transform: translateY(-2px); }
+
+    /* ══ FOOTER ══ */
+    footer {
+      background: #060A14; border-top: 1px solid var(--border);
+      padding: 40px 6vw;
+      display: flex; flex-direction: column; align-items: center; gap: 24px; text-align: center;
+    }
+    .footer-brand { display: flex; align-items: center; gap: 12px; }
+    .footer-brand span { font-size: 1.1rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+    .footer-links { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
+    .footer-links a { font-size: 0.9rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); transition: color 0.2s; }
+    .footer-links a:hover { color: var(--mint); }
+    .footer-copy { font-size: 0.8rem; color: var(--muted); letter-spacing: 0.05em; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in { animation: fadeIn 0.6s ease both; }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav id="main-nav">
+  <a href="index.html" class="nav-brand">
+    <img src="logo.png" alt="Smart Center Gym" style="height:44px;width:44px;object-fit:contain;">
+    <span>Smart Center Gym</span>
+  </a>
+  <div class="nav-links">
+    <a href="index.html#actividades">Actividades</a>
+    <a href="planes.html" class="active">Planes</a>
+    <a href="index.html#horarios">Horarios</a>
+    <a href="index.html#galeria">Galería</a>
+    <a href="index.html#ubicacion">Ubicación</a>
+  </div>
+  <div class="nav-actions">
+    <a href="https://wa.me/5492235823460" target="_blank" class="btn-wa">
+      <svg class="wa-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      <span class="nav-wa-text">WhatsApp</span>
+    </a>
+    <a href="https://wa.me/5492235823460" target="_blank" class="btn-primary">UNIRME</a>
+    <button class="nav-hamburger" onclick="openMobileMenu()" aria-label="Menú">☰</button>
+  </div>
+</nav>
+
+<!-- MOBILE MENU OVERLAY -->
+<div class="mobile-menu-overlay" id="mobile-menu">
+  <button class="mobile-menu-close" onclick="closeMobileMenu()" aria-label="Cerrar">✕</button>
+  <a href="index.html#actividades" onclick="closeMobileMenu()">Actividades</a>
+  <a href="planes.html" onclick="closeMobileMenu()">Planes</a>
+  <a href="index.html#horarios" onclick="closeMobileMenu()">Horarios</a>
+  <a href="index.html#galeria" onclick="closeMobileMenu()">Galería</a>
+  <a href="index.html#ubicacion" onclick="closeMobileMenu()">Ubicación</a>
+  <a href="https://wa.me/5492235823460" target="_blank" style="color:var(--mint)" onclick="closeMobileMenu()">WhatsApp</a>
+</div>
+
+<!-- HERO -->
+<div id="hero">
+  <p class="hero-label fade-in">Smart Center Gym · Mar del Plata</p>
+  <h1 class="hero-title fade-in">NUESTROS PLANES<br><em>Y PRECIOS</em></h1>
+  <p class="hero-sub fade-in">Encontrá el plan ideal para tu objetivo</p>
+  <div class="hero-divider fade-in"></div>
+</div>
+
+<!-- MAIN -->
+<main>
+  <p class="planes-note">
+    Precios en <strong>ARS</strong> · Se muestran <strong>precio de lista</strong> y <strong>precio efectivo</strong> (con descuento por pago en efectivo)
+  </p>
+
+  <div id="planes-container">
+    <!-- Renderizado por JS -->
+  </div>
+
+  <!-- CTA FINAL -->
+  <div class="cta-final">
+    <h2 class="cta-final-title">¿TENÉS ALGUNA <em>CONSULTA</em>?</h2>
+    <p class="cta-final-sub">Escribinos por WhatsApp y te asesoramos sin compromiso</p>
+    <a href="https://wa.me/5492235823460?text=Hola!%20Quiero%20consultar%20sobre%20los%20planes%20de%20Smart%20Center%20Gym" target="_blank" class="btn-cta-big">
+      <svg style="width:22px;height:22px;flex-shrink:0" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      CONSULTÁ AHORA POR WHATSAPP
+    </a>
+  </div>
+</main>
+
+<!-- WA FLOAT BUTTON -->
+<a href="https://wa.me/5492235823460?text=Hola!%20Quiero%20más%20información%20sobre%20Smart%20Center%20Gym"
+   target="_blank"
+   style="position:fixed;bottom:24px;right:24px;z-index:999;
+          width:56px;height:56px;border-radius:50%;
+          background:#25D366;color:#fff;
+          display:flex;align-items:center;justify-content:center;
+          box-shadow:0 4px 20px rgba(37,211,102,0.5);
+          transition:transform 0.2s,box-shadow 0.2s;
+          text-decoration:none;"
+   onmouseover="this.style.transform='scale(1.1)';this.style.boxShadow='0 6px 28px rgba(37,211,102,0.7)'"
+   onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 4px 20px rgba(37,211,102,0.5)'"
+   aria-label="WhatsApp">
+  <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+  </svg>
+</a>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-brand">
+    <img src="logo.png" alt="Smart Center Gym" style="height:36px;width:36px;object-fit:contain;">
+    <span>Smart Center Gym</span>
+  </div>
+  <div class="footer-links">
+    <a href="index.html#actividades">Actividades</a>
+    <a href="planes.html">Planes</a>
+    <a href="index.html#horarios">Horarios</a>
+    <a href="index.html#galeria">Galería</a>
+    <a href="index.html#ubicacion">Ubicación</a>
+    <a href="https://instagram.com/smartcentergym" target="_blank">Instagram</a>
+  </div>
+  <p class="footer-copy">© 2025 Smart Center Gym · Av. Constitución y Marcos Sastre, Mar del Plata</p>
+</footer>
+
+<script>
+const CATEGORY_ICONS = {
+  "Funcional": "🔥",
+  "Musculación": "🏋️",
+  "Strong": "⚡",
+  "Stretching": "🧘",
+  "Calistenia": "💪",
+  "Anual": "📅"
+};
+
+const DEFAULT_PLANS = [
+  {
+    category: "Funcional",
+    plans: [
+      { id: "func-libre", name: "Funcional Libre", lista: 66900, efectivo: 63000 },
+      { id: "func-15d",   name: "Funcional 15 días", lista: 55000, efectivo: 51000 },
+      { id: "func-3x",    name: "Funcional 3 veces/semana", lista: 62200, efectivo: 59500 },
+      { id: "func-2x",    name: "Funcional 2 veces/semana", lista: 56000, efectivo: 53000 },
+      { id: "func-1x",    name: "Funcional 1 vez/semana", lista: 50000, efectivo: 46000 },
+    ]
+  },
+  {
+    category: "Musculación",
+    plans: [
+      { id: "muscu-libre-aeroc", name: "Musculación Libre + Aerocombat", lista: 67500, efectivo: 63000 },
+      { id: "muscu-3x",         name: "Musculación 3 veces/semana", lista: 61500, efectivo: 58000 },
+      { id: "muscu-func-libre", name: "Musculación + Funcional Libre", lista: 80120, efectivo: 74500 },
+      { id: "muscu-func-3x",    name: "Musculación + Func 3 veces/semana", lista: 74000, efectivo: 70000 },
+      { id: "muscu-1x",         name: "Musculación 1 vez/semana", lista: 46350, efectivo: 44500 },
+      { id: "muscu-15d",        name: "Musculación 15 días", lista: 42000, efectivo: 39000 },
+      { id: "muscu-7d",         name: "Musculación 7 días", lista: 40000, efectivo: 37500 },
+      { id: "muscu-1d",         name: "Musculación por 1 día", lista: 16000, efectivo: 15000 },
+    ]
+  },
+  {
+    category: "Strong",
+    plans: [
+      { id: "strong-2x",       name: "Strong 2 veces/semana", lista: 55000, efectivo: 52000 },
+      { id: "strong-2x-muscu", name: "Strong 2 veces + Musculación Libre", lista: 83000, efectivo: 79000 },
+    ]
+  },
+  {
+    category: "Stretching",
+    plans: [
+      { id: "stretch-3x",       name: "Stretching 3 veces/semana", lista: 61500, efectivo: 57000 },
+      { id: "stretch-3x-muscu", name: "Stretching 3 veces + Muscu Libre", lista: 83000, efectivo: 79000 },
+    ]
+  },
+  {
+    category: "Calistenia",
+    plans: [
+      { id: "calis-3x-muscu", name: "Calistenia 3 veces + Muscu Libre", lista: 84000, efectivo: 79000 },
+      { id: "calis-3x",       name: "Calistenia 3 veces/semana", lista: 62000, efectivo: 59000 },
+    ]
+  },
+  {
+    category: "Anual",
+    plans: [
+      { id: "anual-muscu", name: "Musculación Pago Libre Anual", lista: null, efectivo: null },
+    ]
+  }
+];
+
+const WA_ICON_SM = `<svg style="width:16px;height:16px;flex-shrink:0" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>`;
+
+function fmt(n) {
+  return '$' + n.toLocaleString('es-AR');
+}
+
+function buildWALink(planName) {
+  return `https://wa.me/5492235823460?text=${encodeURIComponent('Hola! Me interesa el plan: ' + planName + ' de Smart Center Gym')}`;
+}
+
+function renderPlans(data) {
+  const container = document.getElementById('planes-container');
+  container.innerHTML = '';
+
+  data.forEach((cat, idx) => {
+    const block = document.createElement('div');
+    block.className = 'category-block';
+
+    const isOpen = true; // All open by default
+    const icon = CATEGORY_ICONS[cat.category] || '🏅';
+
+    block.innerHTML = `
+      <div class="category-header open" onclick="toggleCategory(this)">
+        <span class="category-icon">${icon}</span>
+        <span class="category-title">${cat.category}</span>
+        <span class="category-toggle">+</span>
+      </div>
+      <div class="category-divider"></div>
+      <div class="plans-grid open" id="grid-${idx}"></div>
+    `;
+
+    const grid = block.querySelector('.plans-grid');
+
+    cat.plans.forEach(plan => {
+      const card = document.createElement('div');
+      card.className = 'plan-card';
+
+      const isConsultar = plan.lista === null;
+      const savings = !isConsultar ? plan.lista - plan.efectivo : 0;
+
+      card.innerHTML = `
+        <div class="plan-name">${plan.name}</div>
+        ${!isConsultar ? `
+        <div class="plan-prices">
+          <div class="plan-price-row">
+            <span class="plan-price-label">Precio lista</span>
+            <span class="plan-price-val">${fmt(plan.lista)}</span>
+          </div>
+          <div class="plan-price-row">
+            <span class="plan-price-label">Efectivo</span>
+            <span class="plan-price-val efectivo">${fmt(plan.efectivo)}</span>
+          </div>
+          ${savings > 0 ? `<span class="plan-savings">Ahorrás ${fmt(savings)} en efectivo</span>` : ''}
+        </div>
+        ` : `<div style="color:var(--mint);font-size:1.1rem;font-weight:800;letter-spacing:0.05em;">PRECIO ESPECIAL</div>`}
+        <a href="${buildWALink(plan.name)}" target="_blank" class="plan-cta ${isConsultar ? 'outline' : ''}">
+          ${WA_ICON_SM}
+          ${isConsultar ? 'CONSULTAR PRECIO' : 'INSCRIBIRME'}
+        </a>
+      `;
+
+      grid.appendChild(card);
+    });
+
+    container.appendChild(block);
+  });
+}
+
+function toggleCategory(header) {
+  const block = header.closest('.category-block');
+  const grid = block.querySelector('.plans-grid');
+  const isOpen = header.classList.contains('open');
+
+  if (isOpen) {
+    header.classList.remove('open');
+    grid.classList.remove('open');
+  } else {
+    header.classList.add('open');
+    grid.classList.add('open');
+  }
+}
+
+function loadPlans() {
+  try {
+    const saved = localStorage.getItem('smartcenter_plans');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed && parsed.length) { renderPlans(parsed); return; }
+    }
+  } catch(e) {}
+  renderPlans(DEFAULT_PLANS);
+}
+
+function openMobileMenu() {
+  document.getElementById('mobile-menu').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeMobileMenu() {
+  document.getElementById('mobile-menu').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+loadPlans();
+</script>
+</body>
+</html>

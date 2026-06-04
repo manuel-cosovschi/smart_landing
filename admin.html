@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — Smart Center Gym</title>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0A0F1E;
+      --card: #0D1829;
+      --card2: #0F1E36;
+      --mint: #00E5C8;
+      --mint-dim: rgba(0,229,200,0.12);
+      --white: #FFFFFF;
+      --muted: #8899AA;
+      --border: rgba(0,229,200,0.18);
+      --danger: #FF4D6D;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--white);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 16px;
+      min-height: 100vh;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    /* ══ LOGIN ══ */
+    #login-screen {
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      background: radial-gradient(ellipse 80% 60% at 50% 30%, rgba(0,229,200,0.07) 0%, transparent 70%), var(--bg);
+    }
+    .login-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 48px 40px;
+      width: 100%; max-width: 400px;
+      display: flex; flex-direction: column; gap: 24px;
+      text-align: center;
+      align-items: center;
+    }
+    .login-logo {
+      display: flex; flex-direction: column;
+      align-items: center; gap: 14px;
+    }
+    .login-logo span {
+      font-size: 1.25rem; font-weight: 800;
+      letter-spacing: 0.08em; text-transform: uppercase;
+    }
+    .login-title { font-size: 1.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; }
+    .login-sub { font-size: 0.9rem; color: var(--muted); }
+
+    .form-group { display: flex; flex-direction: column; gap: 8px; text-align: left; }
+    .form-label { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--mint); }
+    .form-input {
+      background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+      padding: 12px 14px; color: var(--white);
+      font-family: inherit; font-size: 1rem; font-weight: 600;
+      outline: none; transition: border-color 0.2s;
+    }
+    .form-input:focus { border-color: var(--mint); }
+
+    .btn-login {
+      padding: 14px; border-radius: 8px;
+      background: var(--mint); color: #000;
+      font-family: inherit; font-size: 1rem; font-weight: 800;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      border: none; cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    .btn-login:hover { opacity: 0.85; transform: translateY(-1px); }
+
+    .login-error {
+      color: var(--danger); font-size: 0.9rem; font-weight: 700;
+      letter-spacing: 0.05em; display: none;
+    }
+    .login-error.show { display: block; }
+
+    /* ══ DASHBOARD ══ */
+    #dashboard { display: none; }
+    #dashboard.show { display: block; }
+
+    .admin-header {
+      background: rgba(10,15,30,0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 5vw;
+      height: 68px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .admin-brand { display: flex; align-items: center; gap: 12px; }
+    .admin-brand span { font-size: 1.1rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+    .admin-badge {
+      font-size: 0.7rem; font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase;
+      background: var(--mint); color: #000;
+      padding: 3px 8px; border-radius: 4px;
+    }
+    .btn-logout {
+      padding: 7px 16px; border-radius: 6px;
+      background: transparent; border: 1px solid var(--border);
+      color: var(--muted); font-family: inherit; font-size: 0.8rem;
+      font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+      cursor: pointer; transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-logout:hover { border-color: var(--danger); color: var(--danger); }
+
+    /* ══ TABS ══ */
+    .admin-tabs {
+      display: flex; gap: 0;
+      border-bottom: 1px solid var(--border);
+      padding: 0 5vw;
+      background: var(--card);
+    }
+    .tab-btn {
+      padding: 16px 24px;
+      background: none; border: none; border-bottom: 3px solid transparent;
+      color: var(--muted); font-family: inherit; font-size: 1rem;
+      font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+      cursor: pointer; transition: color 0.2s, border-color 0.2s;
+      margin-bottom: -1px;
+    }
+    .tab-btn.active { color: var(--mint); border-bottom-color: var(--mint); }
+
+    /* ══ CONTENT ══ */
+    .admin-content { padding: 40px 5vw; max-width: 1100px; }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    .section-hd {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 24px; flex-wrap: wrap; gap: 12px;
+    }
+    .section-hd h2 { font-size: 1.6rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; }
+    .section-hd h2 em { color: var(--mint); font-style: normal; }
+
+    /* ══ PLANS TABLE ══ */
+    .plans-admin-section { margin-bottom: 40px; }
+    .cat-header {
+      font-size: 0.85rem; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--mint); border-left: 3px solid var(--mint); padding-left: 10px;
+      margin-bottom: 12px; margin-top: 28px;
+    }
+
+    .plans-table { width: 100%; border-collapse: collapse; }
+    .plans-table th {
+      text-align: left; padding: 8px 12px;
+      font-size: 0.72rem; font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--muted); border-bottom: 1px solid var(--border);
+    }
+    .plans-table td {
+      padding: 10px 12px; border-bottom: 1px solid rgba(0,229,200,0.06);
+      font-size: 0.95rem;
+    }
+    .plans-table tr:hover td { background: var(--mint-dim); }
+    .plans-table input {
+      background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
+      padding: 6px 10px; color: var(--white);
+      font-family: inherit; font-size: 0.95rem; font-weight: 700;
+      width: 130px; outline: none;
+      transition: border-color 0.2s;
+    }
+    .plans-table input:focus { border-color: var(--mint); }
+
+    .btn-save {
+      padding: 13px 32px; border-radius: 8px;
+      background: var(--mint); color: #000;
+      font-family: inherit; font-size: 1rem; font-weight: 800;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      border: none; cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    .btn-save:hover { opacity: 0.85; transform: translateY(-1px); }
+
+    .save-msg {
+      font-size: 0.9rem; font-weight: 700; color: var(--mint);
+      letter-spacing: 0.05em; opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .save-msg.show { opacity: 1; }
+
+    /* ══ NEWS ══ */
+    .news-form {
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 28px 24px; margin-bottom: 32px;
+      display: grid; gap: 16px;
+    }
+    .news-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 600px) { .news-form-row { grid-template-columns: 1fr; } }
+
+    .form-input-full {
+      background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+      padding: 12px 14px; color: var(--white);
+      font-family: inherit; font-size: 1rem; font-weight: 600;
+      outline: none; width: 100%;
+      transition: border-color 0.2s;
+    }
+    .form-input-full:focus { border-color: var(--mint); }
+    textarea.form-input-full { resize: vertical; min-height: 80px; }
+
+    .btn-add {
+      padding: 12px 28px; border-radius: 8px;
+      background: var(--mint); color: #000;
+      font-family: inherit; font-size: 0.95rem; font-weight: 800;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      border: none; cursor: pointer; align-self: flex-start;
+      transition: opacity 0.2s;
+    }
+    .btn-add:hover { opacity: 0.85; }
+
+    .news-list { display: flex; flex-direction: column; gap: 12px; }
+    .news-item {
+      background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+      padding: 18px 20px;
+      display: flex; align-items: flex-start; gap: 16px;
+    }
+    .news-item-emoji { font-size: 1.8rem; flex-shrink: 0; }
+    .news-item-body { flex: 1; min-width: 0; }
+    .news-item-title { font-size: 1.1rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: var(--mint); }
+    .news-item-desc { font-size: 0.9rem; color: var(--muted); margin-top: 4px; line-height: 1.4; }
+    .news-item-date { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-top: 6px; opacity: 0.7; }
+    .btn-del {
+      padding: 6px 14px; border-radius: 6px;
+      background: transparent; border: 1px solid rgba(255,77,109,0.3);
+      color: var(--danger); font-family: inherit; font-size: 0.8rem;
+      font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+      cursor: pointer; flex-shrink: 0;
+      transition: background 0.2s;
+    }
+    .btn-del:hover { background: rgba(255,77,109,0.15); }
+
+    .empty-msg { color: var(--muted); font-size: 1rem; padding: 24px 0; }
+
+    /* ══ PASSWORD CHANGE ══ */
+    .settings-box {
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 28px 24px; max-width: 440px;
+      display: flex; flex-direction: column; gap: 16px;
+    }
+    .settings-box h3 { font-size: 1.2rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; }
+
+    /* ══ TABLE SCROLL (mobile) ══ */
+    .table-scroll-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+    @media (max-width: 600px) {
+      .admin-content { padding: 24px 4vw; }
+      .admin-header { padding: 0 4vw; }
+      .admin-tabs { padding: 0 4vw; overflow-x: auto; }
+      .tab-btn { padding: 14px 16px; font-size: 0.85rem; white-space: nowrap; }
+      .login-box { padding: 32px 20px; }
+      .news-form { padding: 20px 16px; }
+      .settings-box { padding: 20px 16px; }
+      .section-hd { flex-direction: column; align-items: flex-start; }
+    }
+
+    /* ══ TOAST ══ */
+    .toast {
+      position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+      background: var(--mint); color: #000;
+      padding: 12px 24px; border-radius: 8px;
+      font-weight: 800; letter-spacing: 0.06em; font-size: 0.95rem;
+      transform: translateY(80px); opacity: 0;
+      transition: transform 0.3s, opacity 0.3s;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+  </style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <img src="logo.png" alt="Smart Center Gym" style="height:90px;width:90px;object-fit:contain;">
+      <span>Smart Center Gym</span>
+    </div>
+    <div style="text-align:center">
+      <div class="login-title">Panel Admin</div>
+      <div class="login-sub" style="margin-top:6px">Ingresá tu contraseña para continuar</div>
+    </div>
+    <div class="form-group" style="width:100%">
+      <label class="form-label" for="pw-input">Contraseña</label>
+      <input type="password" id="pw-input" class="form-input" placeholder="••••••••" autocomplete="current-password" />
+    </div>
+    <div class="login-error" id="login-error">Contraseña incorrecta. Intentá de nuevo.</div>
+    <button class="btn-login" onclick="doLogin()" style="width:100%">INGRESAR</button>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <div class="admin-header">
+    <div class="admin-brand">
+      <img src="logo.png" alt="Smart Center Gym" style="height:40px;width:40px;object-fit:contain;">
+      <span>Smart Center</span>
+      <span class="admin-badge">Admin</span>
+    </div>
+    <button class="btn-logout" onclick="doLogout()">SALIR</button>
+  </div>
+
+  <div class="admin-tabs">
+    <button class="tab-btn active" onclick="showTab('tab-planes', this)">Planes y Precios</button>
+    <button class="tab-btn" onclick="showTab('tab-news', this)">Novedades</button>
+    <button class="tab-btn" onclick="showTab('tab-settings', this)">Configuración</button>
+  </div>
+
+  <div class="admin-content">
+
+    <!-- TAB: PLANES -->
+    <div id="tab-planes" class="tab-panel active">
+      <div class="section-hd">
+        <h2>Planes <em>&amp; Precios</em></h2>
+        <div style="display:flex;align-items:center;gap:16px">
+          <span class="save-msg" id="save-msg">¡Guardado!</span>
+          <button class="btn-save" onclick="savePlans()">GUARDAR CAMBIOS</button>
+        </div>
+      </div>
+      <p style="color:var(--muted);font-size:0.9rem;margin-bottom:8px">Editá los precios directamente en la tabla. Hacé clic en <strong style="color:var(--white)">Guardar cambios</strong> para publicar en la landing.</p>
+      <div id="plans-admin-container"></div>
+    </div>
+
+    <!-- TAB: NOVEDADES -->
+    <div id="tab-news" class="tab-panel">
+      <div class="section-hd">
+        <h2>Novedades <em>&amp; Eventos</em></h2>
+      </div>
+
+      <div class="news-form">
+        <div style="font-size:1rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:var(--mint)">Nueva novedad</div>
+        <div class="news-form-row">
+          <div class="form-group" style="gap:6px">
+            <label class="form-label">Título</label>
+            <input type="text" id="n-title" class="form-input-full" placeholder="Ej: Nueva clase de Strong" />
+          </div>
+          <div class="form-group" style="gap:6px">
+            <label class="form-label">Emoji / Ícono</label>
+            <input type="text" id="n-emoji" class="form-input-full" placeholder="🔥" maxlength="4" />
+          </div>
+        </div>
+        <div class="form-group" style="gap:6px">
+          <label class="form-label">Descripción</label>
+          <textarea id="n-desc" class="form-input-full" placeholder="Describí la novedad o evento..."></textarea>
+        </div>
+        <div class="form-group" style="gap:6px">
+          <label class="form-label">Fecha (opcional)</label>
+          <input type="text" id="n-date" class="form-input-full" placeholder="Ej: Junio 2025" style="max-width:260px" />
+        </div>
+        <button class="btn-add" onclick="addNews()">+ AGREGAR NOVEDAD</button>
+      </div>
+
+      <div id="news-admin-list" class="news-list"></div>
+    </div>
+
+    <!-- TAB: SETTINGS -->
+    <div id="tab-settings" class="tab-panel">
+      <div class="section-hd">
+        <h2>Configuración</h2>
+      </div>
+      <div class="settings-box">
+        <h3>Cambiar contraseña</h3>
+        <div class="form-group" style="gap:6px">
+          <label class="form-label">Contraseña actual</label>
+          <input type="password" id="pw-current" class="form-input-full" placeholder="••••••••" />
+        </div>
+        <div class="form-group" style="gap:6px">
+          <label class="form-label">Nueva contraseña</label>
+          <input type="password" id="pw-new" class="form-input-full" placeholder="••••••••" />
+        </div>
+        <div class="form-group" style="gap:6px">
+          <label class="form-label">Confirmar nueva contraseña</label>
+          <input type="password" id="pw-confirm" class="form-input-full" placeholder="••••••••" />
+        </div>
+        <button class="btn-save" onclick="changePassword()">GUARDAR CONTRASEÑA</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- WA FLOAT BUTTON -->
+<a href="https://wa.me/5492235823460?text=Hola!%20Quiero%20más%20información%20sobre%20Smart%20Center%20Gym"
+   target="_blank"
+   style="position:fixed;bottom:24px;right:24px;z-index:999;
+          width:56px;height:56px;border-radius:50%;
+          background:#25D366;color:#fff;
+          display:flex;align-items:center;justify-content:center;
+          box-shadow:0 4px 20px rgba(37,211,102,0.5);
+          transition:transform 0.2s,box-shadow 0.2s;
+          text-decoration:none;"
+   onmouseover="this.style.transform='scale(1.1)';this.style.boxShadow='0 6px 28px rgba(37,211,102,0.7)'"
+   onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 4px 20px rgba(37,211,102,0.5)'"
+   aria-label="WhatsApp">
+  <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+  </svg>
+</a>
+
+<script>
+// ══ AUTH ══
+const DEFAULT_PASSWORD = 'smart2024';
+
+function getPassword() {
+  return localStorage.getItem('sc_admin_pw') || DEFAULT_PASSWORD;
+}
+
+function doLogin() {
+  const val = document.getElementById('pw-input').value;
+  const err = document.getElementById('login-error');
+  if (val === getPassword()) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('dashboard').classList.add('show');
+    err.classList.remove('show');
+    initDashboard();
+  } else {
+    err.classList.add('show');
+    document.getElementById('pw-input').value = '';
+    document.getElementById('pw-input').focus();
+  }
+}
+
+function doLogout() {
+  document.getElementById('dashboard').classList.remove('show');
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('pw-input').value = '';
+}
+
+document.getElementById('pw-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+
+function changePassword() {
+  const cur = document.getElementById('pw-current').value;
+  const nw = document.getElementById('pw-new').value;
+  const conf = document.getElementById('pw-confirm').value;
+  if (cur !== getPassword()) { showToast('Contraseña actual incorrecta'); return; }
+  if (!nw || nw.length < 4) { showToast('La nueva contraseña debe tener al menos 4 caracteres'); return; }
+  if (nw !== conf) { showToast('Las contraseñas no coinciden'); return; }
+  localStorage.setItem('sc_admin_pw', nw);
+  document.getElementById('pw-current').value = '';
+  document.getElementById('pw-new').value = '';
+  document.getElementById('pw-confirm').value = '';
+  showToast('Contraseña actualizada correctamente');
+}
+
+// ══ TABS ══
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ══ DEFAULT PLANS ══
+const DEFAULT_PLANS = [
+  {
+    category: "Funcional",
+    plans: [
+      { id: "func-libre", name: "Funcional Libre", lista: 66900, efectivo: 63000 },
+      { id: "func-15d",   name: "Funcional 15 días", lista: 55000, efectivo: 51000 },
+      { id: "func-3x",    name: "Funcional 3 veces/semana", lista: 62200, efectivo: 59500 },
+      { id: "func-2x",    name: "Funcional 2 veces/semana", lista: 56000, efectivo: 53000 },
+      { id: "func-1x",    name: "Funcional 1 vez/semana", lista: 50000, efectivo: 46000 },
+    ]
+  },
+  {
+    category: "Musculación",
+    plans: [
+      { id: "muscu-libre-aeroc", name: "Musculación Libre + Aerocombat", lista: 67500, efectivo: 63000 },
+      { id: "muscu-3x",         name: "Musculación 3 veces/semana", lista: 61500, efectivo: 58000 },
+      { id: "muscu-func-libre", name: "Musculación + Funcional Libre", lista: 80120, efectivo: 74500 },
+      { id: "muscu-func-3x",    name: "Musculación + Func 3 veces/semana", lista: 74000, efectivo: 70000 },
+      { id: "muscu-1x",         name: "Musculación 1 vez/semana", lista: 46350, efectivo: 44500 },
+      { id: "muscu-15d",        name: "Musculación 15 días", lista: 42000, efectivo: 39000 },
+      { id: "muscu-7d",         name: "Musculación 7 días", lista: 40000, efectivo: 37500 },
+      { id: "muscu-1d",         name: "Musculación por 1 día", lista: 16000, efectivo: 15000 },
+    ]
+  },
+  {
+    category: "Strong",
+    plans: [
+      { id: "strong-2x",       name: "Strong 2 veces/semana", lista: 55000, efectivo: 52000 },
+      { id: "strong-2x-muscu", name: "Strong 2 veces + Musculación Libre", lista: 83000, efectivo: 79000 },
+    ]
+  },
+  {
+    category: "Stretching",
+    plans: [
+      { id: "stretch-3x",       name: "Stretching 3 veces/semana", lista: 61500, efectivo: 57000 },
+      { id: "stretch-3x-muscu", name: "Stretching 3 veces + Muscu Libre", lista: 83000, efectivo: 79000 },
+    ]
+  },
+  {
+    category: "Calistenia",
+    plans: [
+      { id: "calis-3x-muscu", name: "Calistenia 3 veces + Muscu Libre", lista: 84000, efectivo: 79000 },
+      { id: "calis-3x",       name: "Calistenia 3 veces/semana", lista: 62000, efectivo: 59000 },
+    ]
+  },
+  {
+    category: "Anual",
+    plans: [
+      { id: "anual-muscu", name: "Musculación Pago Libre Anual", lista: null, efectivo: null },
+    ]
+  }
+];
+
+// ══ PLANS ADMIN ══
+function getCurrentPlans() {
+  try {
+    const saved = localStorage.getItem('smartcenter_plans');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed && parsed.length) return parsed;
+    }
+  } catch(e) {}
+  return JSON.parse(JSON.stringify(DEFAULT_PLANS));
+}
+
+function renderPlansAdmin() {
+  const data = getCurrentPlans();
+  const container = document.getElementById('plans-admin-container');
+  container.innerHTML = '';
+
+  data.forEach(cat => {
+    const wrap = document.createElement('div');
+    wrap.className = 'plans-admin-section';
+
+    const hd = document.createElement('div');
+    hd.className = 'cat-header';
+    hd.textContent = cat.category;
+    wrap.appendChild(hd);
+
+    const table = document.createElement('table');
+    table.className = 'plans-table';
+    table.innerHTML = `
+      <thead>
+        <tr>
+          <th>Plan</th>
+          <th>Precio Lista (ARS)</th>
+          <th>Precio Efectivo (ARS)</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    `;
+    const tbody = table.querySelector('tbody');
+
+    cat.plans.forEach(plan => {
+      const tr = document.createElement('tr');
+      const isConsultar = plan.lista === null;
+      tr.innerHTML = `
+        <td style="font-weight:700">${plan.name}</td>
+        <td>${isConsultar
+          ? '<span style="color:var(--muted);font-size:0.85rem">CONSULTAR</span>'
+          : `<input type="number" data-id="${plan.id}" data-field="lista" value="${plan.lista}" min="0" step="500" />`
+        }</td>
+        <td>${isConsultar
+          ? '<span style="color:var(--muted);font-size:0.85rem">CONSULTAR</span>'
+          : `<input type="number" data-id="${plan.id}" data-field="efectivo" value="${plan.efectivo}" min="0" step="500" />`
+        }</td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    const scrollWrap = document.createElement('div');
+    scrollWrap.className = 'table-scroll-wrap';
+    scrollWrap.appendChild(table);
+    wrap.appendChild(scrollWrap);
+    container.appendChild(wrap);
+  });
+}
+
+function savePlans() {
+  const data = getCurrentPlans();
+
+  // Recoger todos los inputs
+  const inputs = document.querySelectorAll('#plans-admin-container input[data-id]');
+  inputs.forEach(input => {
+    const id = input.dataset.id;
+    const field = input.dataset.field;
+    const val = parseInt(input.value, 10);
+    if (!isNaN(val)) {
+      data.forEach(cat => {
+        cat.plans.forEach(plan => {
+          if (plan.id === id) plan[field] = val;
+        });
+      });
+    }
+  });
+
+  localStorage.setItem('smartcenter_plans', JSON.stringify(data));
+
+  const msg = document.getElementById('save-msg');
+  msg.classList.add('show');
+  setTimeout(() => msg.classList.remove('show'), 2500);
+  showToast('Precios guardados. Se actualizarán en la landing al recargar.');
+}
+
+// ══ NEWS ADMIN ══
+function getNews() {
+  try {
+    const saved = localStorage.getItem('smartcenter_news');
+    if (saved) return JSON.parse(saved) || [];
+  } catch(e) {}
+  return [];
+}
+
+function saveNews(news) {
+  localStorage.setItem('smartcenter_news', JSON.stringify(news));
+}
+
+function renderNewsAdmin() {
+  const news = getNews();
+  const list = document.getElementById('news-admin-list');
+  if (news.length === 0) {
+    list.innerHTML = '<div class="empty-msg">No hay novedades cargadas todavía.</div>';
+    return;
+  }
+  list.innerHTML = '';
+  news.forEach((item, idx) => {
+    const div = document.createElement('div');
+    div.className = 'news-item';
+    div.innerHTML = `
+      <div class="news-item-emoji">${item.emoji || '📢'}</div>
+      <div class="news-item-body">
+        <div class="news-item-title">${item.title}</div>
+        <div class="news-item-desc">${item.desc}</div>
+        ${item.date ? `<div class="news-item-date">${item.date}</div>` : ''}
+      </div>
+      <button class="btn-del" onclick="deleteNews(${idx})">ELIMINAR</button>
+    `;
+    list.appendChild(div);
+  });
+}
+
+function addNews() {
+  const title = document.getElementById('n-title').value.trim();
+  const desc = document.getElementById('n-desc').value.trim();
+  const emoji = document.getElementById('n-emoji').value.trim() || '📢';
+  const date = document.getElementById('n-date').value.trim();
+
+  if (!title) { showToast('El título es obligatorio'); return; }
+  if (!desc) { showToast('La descripción es obligatoria'); return; }
+
+  const news = getNews();
+  news.unshift({ title, desc, emoji, date });
+  saveNews(news);
+  renderNewsAdmin();
+
+  document.getElementById('n-title').value = '';
+  document.getElementById('n-desc').value = '';
+  document.getElementById('n-emoji').value = '';
+  document.getElementById('n-date').value = '';
+
+  showToast('Novedad agregada. Se mostrará en la landing.');
+}
+
+function deleteNews(idx) {
+  if (!confirm('¿Eliminar esta novedad?')) return;
+  const news = getNews();
+  news.splice(idx, 1);
+  saveNews(news);
+  renderNewsAdmin();
+  showToast('Novedad eliminada.');
+}
+
+// ══ TOAST ══
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ══ INIT ══
+function initDashboard() {
+  renderPlansAdmin();
+  renderNewsAdmin();
+}
+</script>
+</body>
+</html>
