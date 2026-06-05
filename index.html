@@ -1125,39 +1125,55 @@ function closeMobileMenu() {
   function doAnimate() {
     if (ran) return;
     ran = true;
-    var STEPS = 80;
-    var INTERVAL = 20; // 20ms × 80 = 1600ms
-    var tick = 0;
-    var timer = setInterval(function() {
-      tick++;
-      var p = tick / STEPS;
+    var duration = 2000;
+    var start = null;
+
+    function step(timestamp) {
+      if (!start) start = timestamp;
+      var elapsed = timestamp - start;
+      var p = Math.min(elapsed / duration, 1);
       var eased = 1 - Math.pow(1 - p, 3);
       for (var i = 0; i < IDS.length; i++) {
         var el = document.getElementById(IDS[i]);
         if (el) el.textContent = Math.round(eased * TARGETS[i]);
       }
-      if (tick >= STEPS) {
-        clearInterval(timer);
+      if (p < 1) {
+        requestAnimationFrame(step);
+      } else {
         for (var j = 0; j < IDS.length; j++) {
           var el2 = document.getElementById(IDS[j]);
           if (el2) el2.textContent = TARGETS[j];
         }
       }
-    }, INTERVAL);
+    }
+
+    requestAnimationFrame(step);
   }
 
-  function check() {
+  if ('IntersectionObserver' in window) {
     var section = document.getElementById('stats');
-    if (!section) return;
-    var rect = section.getBoundingClientRect();
-    if (rect.top < window.innerHeight + 50) doAnimate();
+    if (section) {
+      var obs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            doAnimate();
+            obs.disconnect();
+          }
+        });
+      }, { threshold: 0.2 });
+      obs.observe(section);
+    }
+  } else {
+    window.addEventListener('scroll', function check() {
+      var section = document.getElementById('stats');
+      if (!section) return;
+      var rect = section.getBoundingClientRect();
+      if (rect.top < window.innerHeight) {
+        doAnimate();
+        window.removeEventListener('scroll', check);
+      }
+    }, { passive: true });
   }
-
-  window.addEventListener('scroll', check, { passive: true });
-  // Run immediately and after short delay as fallback
-  check();
-  setTimeout(check, 500);
-  setTimeout(check, 1500);
 })();
 </script>
 </body>
