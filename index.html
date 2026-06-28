@@ -354,16 +354,37 @@
     .gallery-item[data-carousel] .gallery-video { opacity: 0; transition: opacity 0.6s ease; }
     .gallery-item[data-carousel] .gallery-video.active { opacity: 1; }
     .gi-dots {
-      position: absolute; top: 12px; left: 0; right: 0; z-index: 3;
-      display: flex; justify-content: center; gap: 6px;
-      pointer-events: none;
+      position: absolute; top: 12px; left: 0; right: 0; z-index: 4;
+      display: flex; justify-content: center; gap: 8px;
     }
     .gi-dot {
-      width: 7px; height: 7px; border-radius: 50%;
+      width: 9px; height: 9px; border-radius: 50%;
       background: rgba(255,255,255,0.45);
+      border: none; padding: 0; cursor: pointer;
       transition: background 0.3s, transform 0.3s;
     }
     .gi-dot.active { background: var(--mint); transform: scale(1.25); }
+    .gi-dot:hover { background: rgba(255,255,255,0.8); }
+    /* Flechas del carrusel */
+    .gi-arrow {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      z-index: 4; width: 36px; height: 36px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(10,15,30,0.55); border: 1px solid var(--border);
+      color: #fff; font-size: 1.5rem; line-height: 1; padding-bottom: 3px;
+      cursor: pointer; opacity: 0;
+      transition: opacity 0.25s, background 0.2s, color 0.2s, border-color 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .gi-arrow.prev { left: 8px; }
+    .gi-arrow.next { right: 8px; }
+    .gallery-item[data-carousel]:hover .gi-arrow,
+    .gi-arrow:focus-visible { opacity: 1; }
+    .gi-arrow:hover { background: var(--mint); color: #000; border-color: var(--mint); }
+    /* En pantallas táctiles (sin hover) las flechas quedan siempre visibles */
+    @media (hover: none) {
+      .gi-arrow { opacity: 0.9; }
+    }
 
     /* ══ UBICACIÓN ══ */
     #ubicacion { background: var(--bg); }
@@ -759,6 +780,8 @@
       <video class="gallery-video" muted playsinline preload="metadata">
         <source src="zona%20calistenia.mp4" type="video/mp4">
       </video>
+      <button class="gi-arrow prev" type="button" aria-label="Video anterior">&#8249;</button>
+      <button class="gi-arrow next" type="button" aria-label="Video siguiente">&#8250;</button>
       <div class="gi-dots">
         <span class="gi-dot active"></span>
         <span class="gi-dot"></span>
@@ -928,21 +951,48 @@ loadNews();
   const items = document.querySelectorAll('.gallery-item');
   if (!items.length) return;
 
-  // Carrusel: al terminar un video, pasa al siguiente de la misma tarjeta
+  // Carrusel: flechas, puntos, swipe y auto-avance al terminar el video
   document.querySelectorAll('.gallery-item[data-carousel]').forEach(carousel => {
     const vids = carousel.querySelectorAll('.gallery-video');
     const dots = carousel.querySelectorAll('.gi-dot');
+    if (vids.length < 2) return;
+    let current = 0;
+
+    function goTo(n) {
+      n = (n + vids.length) % vids.length;
+      vids[current].classList.remove('active');
+      vids[current].pause();
+      if (dots[current]) dots[current].classList.remove('active');
+      current = n;
+      vids[current].classList.add('active');
+      if (dots[current]) dots[current].classList.add('active');
+      vids[current].currentTime = 0;
+      vids[current].play().catch(()=>{});
+    }
+
+    // Auto-avance cuando el video activo termina
     vids.forEach((v, i) => {
-      v.addEventListener('ended', () => {
-        const next = (i + 1) % vids.length;
-        vids[i].classList.remove('active');
-        if (dots[i]) dots[i].classList.remove('active');
-        vids[next].classList.add('active');
-        if (dots[next]) dots[next].classList.add('active');
-        vids[next].currentTime = 0;
-        vids[next].play().catch(()=>{});
-      });
+      v.addEventListener('ended', () => { if (i === current) goTo(current + 1); });
     });
+
+    // Puntos clickeables
+    dots.forEach((d, i) => d.addEventListener('click', (e) => { e.stopPropagation(); goTo(i); }));
+
+    // Flechas
+    const prev = carousel.querySelector('.gi-arrow.prev');
+    const next = carousel.querySelector('.gi-arrow.next');
+    if (prev) prev.addEventListener('click', (e) => { e.stopPropagation(); goTo(current - 1); });
+    if (next) next.addEventListener('click', (e) => { e.stopPropagation(); goTo(current + 1); });
+
+    // Swipe en pantallas táctiles
+    let startX = null;
+    carousel.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; }, { passive: true });
+    carousel.addEventListener('touchend', (e) => {
+      if (startX === null) return;
+      const dx = e.changedTouches[0].clientX - startX;
+      if (Math.abs(dx) > 40) goTo(current + (dx < 0 ? 1 : -1));
+      startX = null;
+    }, { passive: true });
   });
 
   function activeVideo(item) {
