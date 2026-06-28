@@ -350,6 +350,20 @@
       background: linear-gradient(to top, rgba(10,15,30,0.9) 0%, rgba(10,15,30,0.5) 60%, transparent 100%);
       pointer-events: none;
     }
+    /* Carrusel (varios videos en una misma tarjeta) */
+    .gallery-item[data-carousel] .gallery-video { opacity: 0; transition: opacity 0.6s ease; }
+    .gallery-item[data-carousel] .gallery-video.active { opacity: 1; }
+    .gi-dots {
+      position: absolute; top: 12px; left: 0; right: 0; z-index: 3;
+      display: flex; justify-content: center; gap: 6px;
+      pointer-events: none;
+    }
+    .gi-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: rgba(255,255,255,0.45);
+      transition: background 0.3s, transform 0.3s;
+    }
+    .gi-dot.active { background: var(--mint); transform: scale(1.25); }
 
     /* ══ UBICACIÓN ══ */
     #ubicacion { background: var(--bg); }
@@ -738,16 +752,17 @@
       </video>
       <div class="gi-label">Área Funcional</div>
     </div>
-    <div class="gallery-item">
-      <video class="gallery-video" muted loop playsinline preload="metadata">
-        <source src="zona%20calistenia.mp4" type="video/mp4">
-      </video>
-      <div class="gi-label">Zona Calistenia</div>
-    </div>
-    <div class="gallery-item">
-      <video class="gallery-video" muted loop playsinline preload="metadata">
+    <div class="gallery-item" data-carousel>
+      <video class="gallery-video active" muted playsinline preload="metadata">
         <source src="calistenia.mp4" type="video/mp4">
       </video>
+      <video class="gallery-video" muted playsinline preload="metadata">
+        <source src="zona%20calistenia.mp4" type="video/mp4">
+      </video>
+      <div class="gi-dots">
+        <span class="gi-dot active"></span>
+        <span class="gi-dot"></span>
+      </div>
       <div class="gi-label">Calistenia</div>
     </div>
     <div class="gallery-item">
@@ -910,23 +925,43 @@ loadNews();
 
 // ══ GALERÍA: reproducir videos solo cuando están en pantalla ══
 (function() {
-  const vids = document.querySelectorAll('.gallery-video');
-  if (!vids.length) return;
+  const items = document.querySelectorAll('.gallery-item');
+  if (!items.length) return;
+
+  // Carrusel: al terminar un video, pasa al siguiente de la misma tarjeta
+  document.querySelectorAll('.gallery-item[data-carousel]').forEach(carousel => {
+    const vids = carousel.querySelectorAll('.gallery-video');
+    const dots = carousel.querySelectorAll('.gi-dot');
+    vids.forEach((v, i) => {
+      v.addEventListener('ended', () => {
+        const next = (i + 1) % vids.length;
+        vids[i].classList.remove('active');
+        if (dots[i]) dots[i].classList.remove('active');
+        vids[next].classList.add('active');
+        if (dots[next]) dots[next].classList.add('active');
+        vids[next].currentTime = 0;
+        vids[next].play().catch(()=>{});
+      });
+    });
+  });
+
+  function activeVideo(item) {
+    return item.querySelector('.gallery-video.active') || item.querySelector('.gallery-video');
+  }
+  function playItem(item) { const v = activeVideo(item); if (v) v.play().catch(()=>{}); }
+  function pauseItem(item) { item.querySelectorAll('.gallery-video').forEach(v => v.pause()); }
+
   if (!('IntersectionObserver' in window)) {
-    vids.forEach(v => { v.setAttribute('autoplay',''); v.play().catch(()=>{}); });
+    items.forEach(playItem);
     return;
   }
   const vidObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
-      const v = entry.target;
-      if (entry.isIntersecting) {
-        v.play().catch(()=>{});
-      } else {
-        v.pause();
-      }
+      if (entry.isIntersecting) playItem(entry.target);
+      else pauseItem(entry.target);
     });
   }, { threshold: 0.4 });
-  vids.forEach(v => vidObserver.observe(v));
+  items.forEach(it => vidObserver.observe(it));
 })();
 
 // ══ NEWS BANNER DATA ══
