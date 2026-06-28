@@ -311,28 +311,14 @@
   </div>
 
   <div class="admin-tabs">
-    <button class="tab-btn active" onclick="showTab('tab-planes', this)">Planes y Precios</button>
-    <button class="tab-btn" onclick="showTab('tab-news', this)">Novedades</button>
+    <button class="tab-btn active" onclick="showTab('tab-news', this)">Novedades</button>
     <button class="tab-btn" onclick="showTab('tab-settings', this)">Configuración</button>
   </div>
 
   <div class="admin-content">
 
-    <!-- TAB: PLANES -->
-    <div id="tab-planes" class="tab-panel active">
-      <div class="section-hd">
-        <h2>Planes <em>&amp; Precios</em></h2>
-        <div style="display:flex;align-items:center;gap:16px">
-          <span class="save-msg" id="save-msg">¡Guardado!</span>
-          <button class="btn-save" onclick="savePlans()">GUARDAR CAMBIOS</button>
-        </div>
-      </div>
-      <p style="color:var(--muted);font-size:0.9rem;margin-bottom:8px">Editá los precios directamente en la tabla. Hacé clic en <strong style="color:var(--white)">Guardar cambios</strong> para publicar en la landing.</p>
-      <div id="plans-admin-container"></div>
-    </div>
-
     <!-- TAB: NOVEDADES -->
-    <div id="tab-news" class="tab-panel">
+    <div id="tab-news" class="tab-panel active">
       <div class="section-hd">
         <h2>Novedades <em>&amp; Eventos</em></h2>
       </div>
@@ -462,151 +448,6 @@ function showTab(id, btn) {
   btn.classList.add('active');
 }
 
-// ══ DEFAULT PLANS ══
-const DEFAULT_PLANS = [
-  {
-    category: "Funcional",
-    plans: [
-      { id: "func-libre", name: "Funcional Libre", lista: 66900, efectivo: 63000 },
-      { id: "func-15d",   name: "Funcional 15 días", lista: 55000, efectivo: 51000 },
-      { id: "func-3x",    name: "Funcional 3 veces/semana", lista: 62200, efectivo: 59500 },
-      { id: "func-2x",    name: "Funcional 2 veces/semana", lista: 56000, efectivo: 53000 },
-      { id: "func-1x",    name: "Funcional 1 vez/semana", lista: 50000, efectivo: 46000 },
-    ]
-  },
-  {
-    category: "Musculación",
-    plans: [
-      { id: "muscu-libre-aeroc", name: "Musculación Libre + Aerocombat", lista: 67500, efectivo: 63000 },
-      { id: "muscu-3x",         name: "Musculación 3 veces/semana", lista: 61500, efectivo: 58000 },
-      { id: "muscu-func-libre", name: "Musculación + Funcional Libre", lista: 80120, efectivo: 74500 },
-      { id: "muscu-func-3x",    name: "Musculación + Func 3 veces/semana", lista: 74000, efectivo: 70000 },
-      { id: "muscu-1x",         name: "Musculación 1 vez/semana", lista: 46350, efectivo: 44500 },
-      { id: "muscu-15d",        name: "Musculación 15 días", lista: 42000, efectivo: 39000 },
-      { id: "muscu-7d",         name: "Musculación 7 días", lista: 40000, efectivo: 37500 },
-      { id: "muscu-1d",         name: "Musculación por 1 día", lista: 16000, efectivo: 15000 },
-    ]
-  },
-  {
-    category: "Strong",
-    plans: [
-      { id: "strong-2x",       name: "Strong 2 veces/semana", lista: 55000, efectivo: 52000 },
-      { id: "strong-2x-muscu", name: "Strong 2 veces + Musculación Libre", lista: 83000, efectivo: 79000 },
-    ]
-  },
-  {
-    category: "Stretching",
-    plans: [
-      { id: "stretch-3x",       name: "Stretching 3 veces/semana", lista: 61500, efectivo: 57000 },
-      { id: "stretch-3x-muscu", name: "Stretching 3 veces + Muscu Libre", lista: 83000, efectivo: 79000 },
-    ]
-  },
-  {
-    category: "Calistenia",
-    plans: [
-      { id: "calis-3x-muscu", name: "Calistenia 3 veces + Muscu Libre", lista: 84000, efectivo: 79000 },
-      { id: "calis-3x",       name: "Calistenia 3 veces/semana", lista: 62000, efectivo: 59000 },
-    ]
-  },
-  {
-    category: "Anual",
-    plans: [
-      { id: "anual-muscu", name: "Musculación Pago Libre Anual", lista: null, efectivo: null },
-    ]
-  }
-];
-
-// ══ PLANS ADMIN ══
-function getCurrentPlans() {
-  try {
-    const saved = localStorage.getItem('smartcenter_plans');
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      if (parsed && parsed.length) return parsed;
-    }
-  } catch(e) {}
-  return JSON.parse(JSON.stringify(DEFAULT_PLANS));
-}
-
-function renderPlansAdmin() {
-  const data = getCurrentPlans();
-  const container = document.getElementById('plans-admin-container');
-  container.innerHTML = '';
-
-  data.forEach(cat => {
-    const wrap = document.createElement('div');
-    wrap.className = 'plans-admin-section';
-
-    const hd = document.createElement('div');
-    hd.className = 'cat-header';
-    hd.textContent = cat.category;
-    wrap.appendChild(hd);
-
-    const table = document.createElement('table');
-    table.className = 'plans-table';
-    table.innerHTML = `
-      <thead>
-        <tr>
-          <th>Plan</th>
-          <th>Precio Lista (ARS)</th>
-          <th>Precio Efectivo (ARS)</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    `;
-    const tbody = table.querySelector('tbody');
-
-    cat.plans.forEach(plan => {
-      const tr = document.createElement('tr');
-      const isConsultar = plan.lista === null;
-      tr.innerHTML = `
-        <td style="font-weight:700">${plan.name}</td>
-        <td>${isConsultar
-          ? '<span style="color:var(--muted);font-size:0.85rem">CONSULTAR</span>'
-          : `<input type="number" data-id="${plan.id}" data-field="lista" value="${plan.lista}" min="0" step="500" />`
-        }</td>
-        <td>${isConsultar
-          ? '<span style="color:var(--muted);font-size:0.85rem">CONSULTAR</span>'
-          : `<input type="number" data-id="${plan.id}" data-field="efectivo" value="${plan.efectivo}" min="0" step="500" />`
-        }</td>
-      `;
-      tbody.appendChild(tr);
-    });
-
-    const scrollWrap = document.createElement('div');
-    scrollWrap.className = 'table-scroll-wrap';
-    scrollWrap.appendChild(table);
-    wrap.appendChild(scrollWrap);
-    container.appendChild(wrap);
-  });
-}
-
-function savePlans() {
-  const data = getCurrentPlans();
-
-  // Recoger todos los inputs
-  const inputs = document.querySelectorAll('#plans-admin-container input[data-id]');
-  inputs.forEach(input => {
-    const id = input.dataset.id;
-    const field = input.dataset.field;
-    const val = parseInt(input.value, 10);
-    if (!isNaN(val)) {
-      data.forEach(cat => {
-        cat.plans.forEach(plan => {
-          if (plan.id === id) plan[field] = val;
-        });
-      });
-    }
-  });
-
-  localStorage.setItem('smartcenter_plans', JSON.stringify(data));
-
-  const msg = document.getElementById('save-msg');
-  msg.classList.add('show');
-  setTimeout(() => msg.classList.remove('show'), 2500);
-  showToast('Precios guardados. Se actualizarán en la landing al recargar.');
-}
-
 // ══ NEWS ADMIN ══
 function getNews() {
   try {
@@ -685,7 +526,6 @@ function showToast(msg) {
 
 // ══ INIT ══
 function initDashboard() {
-  renderPlansAdmin();
   renderNewsAdmin();
 }
 </script>
